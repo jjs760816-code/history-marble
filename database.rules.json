@@ -4,7 +4,7 @@
     ".write": false,
     "rooms": {
       "$room": {
-        ".read": "auth != null && (data.child('members').child(auth.uid).exists() || data.child('hostUid').val() === auth.uid)",
+        ".read": "auth != null",
         ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || data.child('hostUid').val() === auth.uid)",
         "members": {
           "$uid": {
@@ -30,6 +30,12 @@
           "$uid": {
             ".write": "auth != null && ((auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && (data.parent().parent().child('game/phase').val() === 'roll' || data.parent().parent().child('game/phase').val() === 'order')) || data.parent().parent().child('hostUid').val() === auth.uid)",
             ".validate": "newData.hasChildren(['turnId','team','requestedAt']) && newData.child('turnId').isNumber() && newData.child('team').isNumber()"
+          }
+        },
+        "nicknames": {
+          "$key": {
+            ".write": "auth != null && ((!data.exists() && newData.isString() && newData.val() === auth.uid) || (data.val() === auth.uid && newData.val() === auth.uid))",
+            ".validate": "newData.isString() && newData.val() === auth.uid"
           }
         }
       }
