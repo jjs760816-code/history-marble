@@ -1,0 +1,27 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$room": {
+        ".read": "auth != null && (data.child('members').child(auth.uid).exists() || data.child('hostUid').val() === auth.uid)",
+        ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || data.child('hostUid').val() === auth.uid)",
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && newData.child('team').val() >= 0 && newData.child('team').val() <= 3 && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
+          }
+        },
+        "proposals": {
+          "$proposal": {
+            ".write": "auth != null && (data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('authorUid').val() === auth.uid && newData.child('q').isString() && newData.child('q').val().length <= 200)"
+          }
+        },
+        "attempts": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('turnId').isNumber() && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() <= 3"
+          }
+        }
+      }
+    }
+  }
+}
