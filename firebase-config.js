@@ -1,8 +1,9 @@
-// Firebase 콘솔 > 프로젝트 설정 > 내 앱 > 웹 앱의 firebaseConfig 값을 붙여 넣으세요.
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://PASTE_DATABASE_URL.firebasedatabase.app",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyCzbVYYry6zY5-1II2BpW32E4wVmTIFBM8",
+  authDomain: "history-marble.firebaseapp.com",
+  databaseURL: "https://history-marble-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "history-marble",
+  storageBucket: "history-marble.firebasestorage.app",
+  messagingSenderId: "624823763877",
+  appId: "1:624823763877:web:bc7acf8d55e50a1f125e4c"
 };
