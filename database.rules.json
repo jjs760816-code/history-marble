@@ -37,6 +37,16 @@
             ".write": "auth != null && ((!data.exists() && newData.isString() && newData.val() === auth.uid) || (data.val() === auth.uid && newData.val() === auth.uid))",
             ".validate": "newData.isString() && newData.val() === auth.uid"
           }
+        },
+        "authoringRequests": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('turnId').isNumber() && newData.child('team').isNumber() && newData.child('topic').isNumber() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && newData.child('team').val() === data.parent().parent().child('game/team').val() && newData.child('topic').val() === data.parent().parent().child('game/questionId').val() && data.parent().parent().child('game/phase').val() === 'author' && data.parent().parent().child('members').child(auth.uid).child('team').val() === newData.child('team').val()"
+          }
+        },
+        "completedQuestions": {
+          "$topic": {
+            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('authorUid').val() === auth.uid && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('claimTeam').isNumber() && newData.child('claimTurnId').isNumber() && data.parent().parent().child('members').child(auth.uid).child('team').val() === newData.child('claimTeam').val() && data.parent().parent().child('pendingClaims').child($topic).child('team').val() === newData.child('claimTeam').val() && data.parent().parent().child('pendingClaims').child($topic).child('turnId').val() === newData.child('claimTurnId').val() && newData.child('q').isString() && newData.child('q').val().length > 0 && newData.child('q').val().length <= 200 && newData.child('options').hasChildren(['0','1','2','3']) && newData.child('answer').isNumber() && newData.child('answer').val() >= 0 && newData.child('answer').val() <= 3 && newData.child('explain').isString() && newData.child('explain').val().length > 0 && newData.child('explain').val().length <= 300"
+          }
         }
       }
     }
