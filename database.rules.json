@@ -23,7 +23,7 @@
         },
         "landmarkProposals": {
           "$proposal": {
-            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('authorUid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 24 && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('imageUrl').isString() && newData.child('imageUrl').val().length <= 90000 && (newData.child('imageUrl').val().beginsWith('https://') || newData.child('imageUrl').val().beginsWith('data:image/jpeg;base64,'))"
+            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('authorUid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 24 && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('imageUrl').isString() && newData.child('imageUrl').val().length <= 90000 && (newData.child('imageUrl').val() === '' || newData.child('imageUrl').val().beginsWith('https://') || newData.child('imageUrl').val().beginsWith('data:image/jpeg;base64,'))"
           }
         },
         "rollRequests": {
