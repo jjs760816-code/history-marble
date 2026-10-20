@@ -130,6 +130,9 @@ function drawRollAttention(d,g){
  if(waiting)button.disabled=true;
  const ready=!host&&!button.disabled&&['order','roll'].includes(g.phase);
  button.classList.toggle('roll-ready',ready);
+ let shortcut=$('myRollShortcut');
+ if(!shortcut){shortcut=document.createElement('button');shortcut.id='myRollShortcut';shortcut.type='button';shortcut.className='hidden';shortcut.onclick=()=>button.click();document.body.appendChild(shortcut);}
+ shortcut.classList.toggle('hidden',!ready);shortcut.disabled=!ready;shortcut.textContent=g.phase==='order'?'🎲 내 순서! 시작 주사위 굴리기':'🎲 내 차례! 주사위 굴리기';
  button.setAttribute('aria-describedby','rollReadyHint');
  button.setAttribute('aria-busy',String(waiting));
  if(waiting)button.textContent='⏳ 주사위 요청 처리 중';
@@ -140,7 +143,7 @@ function drawRollAttention(d,g){
  if(hint.textContent!==message)hint.textContent=message;
  if(!$('rollAttentionStyle')){
   const style=document.createElement('style');style.id='rollAttentionStyle';
-  style.textContent='#rollReadyHint{padding:12px 15px;margin:12px 0 8px;border:2px solid #996700;border-radius:12px;background:#fff3bd;color:#493300;font-size:clamp(18px,2.2vw,24px);font-weight:900;line-height:1.5}#roll.roll-ready{background:#ffdd57;color:#172f4a;border:4px solid #9b6500;border-radius:16px;font-size:clamp(22px,2.8vw,30px);font-weight:950;min-height:64px;padding:16px 24px;box-shadow:0 0 0 4px #fff3bd;animation:myRollPulse 1.5s ease-in-out infinite}#roll.roll-ready:hover{background:#ffe98b}#roll.roll-ready:focus-visible{outline:4px solid #1766b4;outline-offset:5px}@keyframes myRollPulse{0%,100%{box-shadow:0 0 0 4px #ffdf6399,0 3px 8px #8c650033}50%{box-shadow:0 0 0 10px #ffdf6333,0 5px 18px #8c650055}}@media(prefers-reduced-motion:reduce){#roll.roll-ready{animation:none;box-shadow:0 0 0 5px #ffdf6388}}';
+  style.textContent='#rollReadyHint{padding:12px 15px;margin:12px 0 8px;border:2px solid #996700;border-radius:12px;background:#fff3bd;color:#493300;font-size:clamp(18px,2.2vw,24px);font-weight:900;line-height:1.5}#roll.roll-ready{background:#ffdd57;color:#172f4a;border:4px solid #9b6500;border-radius:16px;font-size:clamp(22px,2.8vw,30px);font-weight:950;min-height:64px;padding:16px 24px;box-shadow:0 0 0 4px #fff3bd;animation:myRollPulse 1.5s ease-in-out infinite} #myRollShortcut{position:fixed;right:18px;bottom:18px;z-index:80;max-width:calc(100vw - 36px);padding:16px 22px;border:4px solid #9b6500;border-radius:18px;background:#ffdd57;color:#172f4a;font-size:clamp(20px,2.5vw,27px);font-weight:950;box-shadow:0 5px 24px #16345166;animation:myRollPulse 1.5s ease-in-out infinite}#myRollShortcut:focus-visible{outline:4px solid #1766b4;outline-offset:4px}#roll.roll-ready:hover{background:#ffe98b}#roll.roll-ready:focus-visible{outline:4px solid #1766b4;outline-offset:5px}@keyframes myRollPulse{0%,100%{box-shadow:0 0 0 4px #ffdf6399,0 3px 8px #8c650033}50%{box-shadow:0 0 0 10px #ffdf6333,0 5px 18px #8c650055}}@media(prefers-reduced-motion:reduce){#roll.roll-ready,#myRollShortcut{animation:none;box-shadow:0 0 0 5px #ffdf6388}}';
   document.head.appendChild(style);
  }
 }
