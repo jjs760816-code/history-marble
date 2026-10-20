@@ -9,7 +9,9 @@
         "members": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && newData.child('team').val() >= 0 && newData.child('team').val() <= 3 && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
-          }
+          },
+          ".write": "auth != null && data.parent().child('hostUid').val() === auth.uid || auth != null && !data.child(auth.uid).exists() && newData.child(auth.uid).exists() && newData.childrenCount <= 41",
+          ".validate": "newData.hasChildren() && newData.childrenCount <= 41"
         },
         "proposals": {
           "$proposal": {
@@ -24,6 +26,12 @@
         "landmarkProposals": {
           "$proposal": {
             ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('authorUid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 24 && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('imageUrl').isString() && newData.child('imageUrl').val().length <= 90000 && (newData.child('imageUrl').val().beginsWith('https://') || newData.child('imageUrl').val().beginsWith('data:image/jpeg;base64,'))"
+          }
+        },
+        "rollRequests": {
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && (data.parent().parent().child('game/phase').val() === 'roll' || data.parent().parent().child('game/phase').val() === 'order') || data.parent().parent().child('hostUid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['turnId','team','requestedAt']) && newData.child('turnId').isNumber() && newData.child('team').isNumber()"
           }
         }
       }
