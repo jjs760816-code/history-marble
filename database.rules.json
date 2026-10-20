@@ -9,9 +9,7 @@
         "members": {
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && newData.child('team').val() >= 0 && newData.child('team').val() <= 3 && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
-          },
-          ".write": "auth != null && data.parent().child('hostUid').val() === auth.uid || auth != null && !data.child(auth.uid).exists() && newData.child(auth.uid).exists() && newData.childrenCount <= 41",
-          ".validate": "newData.hasChildren() && newData.childrenCount <= 41"
+          }
         },
         "proposals": {
           "$proposal": {
@@ -30,7 +28,7 @@
         },
         "rollRequests": {
           "$uid": {
-            ".write": "auth != null && (auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && (data.parent().parent().child('game/phase').val() === 'roll' || data.parent().parent().child('game/phase').val() === 'order') || data.parent().parent().child('hostUid').val() === auth.uid)",
+            ".write": "auth != null && ((auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && (data.parent().parent().child('game/phase').val() === 'roll' || data.parent().parent().child('game/phase').val() === 'order')) || data.parent().parent().child('hostUid').val() === auth.uid)",
             ".validate": "newData.hasChildren(['turnId','team','requestedAt']) && newData.child('turnId').isNumber() && newData.child('team').isNumber()"
           }
         }
