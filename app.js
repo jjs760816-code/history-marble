@@ -21,7 +21,32 @@ const powerScore=(owners,team)=>TERRITORY_POINTS.reduce((sum,points,id)=>sum+(Nu
 const dice=()=>1+Math.floor(Math.random()*6);
 const twoDice=()=>[dice(),dice()];
 let diceAnimationKey='',diceTimer=null;
-function showDice(g){const el=$('diceResult');if(!el)return;const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];const pair=Array.isArray(g.lastDice)&&g.lastDice.length===2?g.lastDice:null;const stamp=Number(g.rollStartedAt)||0;const key=String(stamp)+'-'+(g.turnId||0);if(stamp&&key!==diceAnimationKey){diceAnimationKey=key;if(diceTimer)clearInterval(diceTimer);const end=stamp+1700;diceTimer=setInterval(()=>{if(Date.now()<end){const a=dice(),b=dice();el.textContent='🎲 굴리는 중… '+faces[a-1]+' '+faces[b-1];el.classList.add('dice-rolling')}else{clearInterval(diceTimer);diceTimer=null;el.classList.remove('dice-rolling');if(pair)el.textContent='🎲 '+faces[pair[0]-1]+' '+faces[pair[1]-1]+' = '+(pair[0]+pair[1])+'칸'+(pair[0]===pair[1]?' · 더블! 추가 차례':'')}} ,80)}if(!diceTimer){el.classList.remove('dice-rolling');el.textContent=pair?'🎲 '+faces[pair[0]-1]+' '+faces[pair[1]-1]+' = '+(pair[0]+pair[1])+'칸'+(pair[0]===pair[1]?' · 더블! 추가 차례':''):'🎲 주사위 대기'}}
+function showDice(g){
+ const el=$('diceResult'),overlay=$('diceOverlay'),faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+ if(!el)return;
+ const pair=Array.isArray(g.lastDice)&&g.lastDice.length===2?g.lastDice:null;
+ const stamp=Number(g.rollStartedAt)||0,key=String(stamp)+'-'+(g.turnId||0);
+ const finalText=pair?'🎲 '+faces[pair[0]-1]+' '+faces[pair[1]-1]+' = '+(pair[0]+pair[1])+'칸'+(pair[0]===pair[1]?' · 더블! 추가 차례':''):'🎲 주사위 대기';
+ if(stamp&&key!==diceAnimationKey){
+  diceAnimationKey=key;if(diceTimer)clearInterval(diceTimer);
+  const end=stamp+2400;
+  if(overlay&&Date.now()<end+1200&&pair){
+   overlay.classList.add('visible');overlay.setAttribute('aria-hidden','false');
+  }
+  const tick=()=>{
+   const now=Date.now(),rolling=now<end;
+   if(rolling){
+    const a=dice(),b=dice();el.textContent='🎲 굴리는 중… '+faces[a-1]+' '+faces[b-1];el.classList.add('dice-rolling');
+    if(overlay){$('diceFace1').textContent=faces[a-1];$('diceFace2').textContent=faces[b-1];$('diceBigLabel').textContent='🎲 주사위 굴리는 중…';}
+   }else{
+    el.classList.remove('dice-rolling');el.textContent=finalText;
+    if(overlay&&pair){$('diceFace1').textContent=faces[pair[0]-1];$('diceFace2').textContent=faces[pair[1]-1];$('diceBigLabel').textContent=pair[0]===pair[1]?'더블! '+(pair[0]+pair[1])+'칸 · 한 번 더!':'합계 '+(pair[0]+pair[1])+'칸 이동';}
+   }
+   if(now>=end+1200){if(diceTimer)clearInterval(diceTimer);diceTimer=null;if(overlay){overlay.classList.remove('visible');overlay.setAttribute('aria-hidden','true');}}
+  };
+  tick();if(Date.now()<end+1200)diceTimer=setInterval(tick,90);
+ }else if(!diceTimer){el.classList.remove('dice-rolling');el.textContent=finalText;}
+}
 const roster=(d,t)=>Object.entries(d.members||{}).filter(([id,m])=>id!==d.hostUid&&Number(m.team)===t).sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0));
 const player=(d,g)=>{const list=roster(d,g.team||0);return list.length?list[(g.playerIndex||0)%list.length][0]:null};
 const canAct=(d,g)=>host||player(d,g)===uid;
