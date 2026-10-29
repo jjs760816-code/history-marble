@@ -34,13 +34,17 @@ function describe(c){const s=SCENARIOS[c.scenario];return {...c,label:s.label,co
 // 설정이 없는 기존 방: 네 나라·원래 규칙
 export const legacyConfig=()=>describe({scenario:DEFAULT_SCENARIO,teamCount:LEGACY_TEAM_COUNT,teamNames:[...LEGACY_NAMES],legacy:true});
 // 교사가 새 방을 만들 때 고른 값 검사. 빈 이름은 시대 기본 이름으로 채움
-export function buildRoomConfig({scenario=DEFAULT_SCENARIO,teamCount=NEW_ROOM_TEAM_COUNT,teamNames=[]}={},now=Date.now()){
+// 문제 시간(30·45·60초)·결과 표시 시간(3·4·6·8초)도 방을 만들 때 한 번 정함
+export const QUIZ_SECONDS_OPTIONS=[30,45,60],RESULT_SECONDS_OPTIONS=[3,4,6,8];
+export function buildRoomConfig({scenario=DEFAULT_SCENARIO,teamCount=NEW_ROOM_TEAM_COUNT,teamNames=[],quizSeconds=30,resultSeconds=4}={},now=Date.now()){
+ if(!QUIZ_SECONDS_OPTIONS.includes(Number(quizSeconds)))return {ok:false,message:'문제 시간은 30·45·60초 중에서 골라 주세요.'};
+ if(!RESULT_SECONDS_OPTIONS.includes(Number(resultSeconds)))return {ok:false,message:'결과 표시 시간은 3·4·6·8초 중에서 골라 주세요.'};
  if(!Object.hasOwn(SCENARIOS,scenario))return {ok:false,message:'시대를 다시 선택해 주세요.'};
  const n=Number(teamCount);if(!validCount(n))return {ok:false,message:'팀 수는 2~5팀 중에서 골라 주세요.'};
  const preset=presetNames(scenario,n),list=range(n).map(i=>{const raw=teamNames?.[i];return raw==null||String(raw).trim()===''?preset[i]:cleanTeamName(String(raw))});
  if(list.some(x=>!x))return {ok:false,message:'팀 이름은 1~20자로 입력하고 < > & " \' ` 기호는 빼 주세요.'};
  if(new Set(list).size!==n)return {ok:false,message:'팀 이름이 서로 겹치지 않게 입력해 주세요.'};
- return {ok:true,config:{version:1,scenario,teamCount:n,teamNames:list,createdAt:now}};
+ return {ok:true,config:{version:2,scenario,teamCount:n,teamNames:list,quizSeconds:Number(quizSeconds),resultSeconds:Number(resultSeconds),createdAt:now}};
 }
 // 방에 저장된 설정 읽기. 팀 수가 올바르지 않으면 보안 규칙과 똑같이 기존 4팀으로 봄
 export function roomConfig(d){
@@ -49,7 +53,8 @@ export function roomConfig(d){
  const n=c.teamCount,scenario=Object.hasOwn(SCENARIOS,c.scenario)?c.scenario:DEFAULT_SCENARIO;
  let list=range(n).map(i=>cleanTeamName(c.teamNames?.[i]));
  if(list.some(x=>!x)||new Set(list).size!==n)list=presetNames(scenario,n);
- return describe({scenario,teamCount:n,teamNames:list,legacy:false});
+ const quizSeconds=QUIZ_SECONDS_OPTIONS.includes(c.quizSeconds)?c.quizSeconds:30,resultSeconds=RESULT_SECONDS_OPTIONS.includes(c.resultSeconds)?c.resultSeconds:4;
+ return describe({scenario,teamCount:n,teamNames:list,quizSeconds,resultSeconds,legacy:false});
 }
 export const isTeamIndex=(team,cfg)=>Number.isInteger(team)&&team>=0&&team<cfg.teamCount;
 // 새 방 삼국 시대는 원래 기본 24문제, 다른 시대는 준비된 시대별 24문제. 없으면 빈 목록(삼국 문제로 대신하지 않음)
@@ -78,14 +83,14 @@ export function initialGame(teamCount,now=Date.now(),message='팀별로 시작 �
 export const rosterOf=(d,t)=>Object.entries(d?.members||{}).filter(([id,m])=>id!==d.hostUid&&Number(m?.team)===t).sort((a,b)=>(a[1].joinedAt||0)-(b[1].joinedAt||0));
 export const currentPlayer=(d,g)=>{const list=rosterOf(d,g?.team||0),index=Number(g?.playerIndices?.[g?.team]??g?.playerIndex??0);return list.length?list[index%list.length][0]:null};
 export const firstPlayerOf=(d,t)=>rosterOf(d,t)[0]?.[0]||null;
-export const startOrder=rolls=>Object.keys(rolls||{}).map(Number).sort((a,b)=>rolls[b]-rolls[a]);
-// 시작 순서 주사위 한 번의 결과. 같은 숫자가 있으면 모두 다시 굴림
+// 큰 수 먼저. 같은 수는 원래 팀 번호 순서(1번 팀 먼저)로 한 번에 정함(전체 다시 굴리기 없음)
+export const startOrder=rolls=>Object.keys(rolls||{}).map(Number).sort((a,b)=>rolls[b]-rolls[a]||a-b);
+// 시작 순서 주사위 한 번의 결과
 export function orderRollPatch(g,pair,{teamCount,names},now=Date.now()){
  const value=pair[0]+pair[1],turn=Number(g.orderTurn||0),rolls={...(g.orderRolls||{}),[turn]:value},base={lastRoll:value,lastDice:pair,rollStartedAt:now};
  if(turn<teamCount-1)return {...base,orderRolls:rolls,orderTurn:turn+1,message:teamLabel(names[turn])+' '+value+'! 다음 팀이 굴려 주세요.'};
  const order=startOrder(rolls),tie=order.some((x,i)=>i>0&&rolls[x]===rolls[order[i-1]]);
- if(tie)return {...base,orderRolls:{},orderTurn:0,message:'같은 숫자가 나왔습니다. 공정하게 다시 굴려 주세요.'};
- return {...base,order,team:order[0],orderTurn:teamCount,phase:'roll',message:'시작 순서: '+order.map(t=>names[t]).join(' → ')};
+ return {...base,orderRolls:rolls,order,team:order[0],orderTurn:teamCount,phase:'roll',message:'시작 순서: '+order.map(t=>names[t]).join(' → ')+(tie?' (같은 숫자는 팀 번호 순서로 정했어요)':'')};
 }
 const orderOf=(g,teamCount)=>{const o=Object.values(g.order||{}).map(Number);return o.length?o:defaultOrder(teamCount)};
 // 다음 차례 계산. force면 더블이어도 다음 팀으로 넘김

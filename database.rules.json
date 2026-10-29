@@ -11,14 +11,101 @@
             ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && (newData.child('team').val() === 0 || newData.child('team').val() === 1 || newData.child('team').val() === 2 || newData.child('team').val() === 3 || newData.child('team').val() === 4) && ((data.parent().parent().child('config/teamCount').isNumber() && (data.parent().parent().child('config/teamCount').val() === 2 || data.parent().parent().child('config/teamCount').val() === 3 || data.parent().parent().child('config/teamCount').val() === 4 || data.parent().parent().child('config/teamCount').val() === 5) && newData.child('team').val() < data.parent().parent().child('config/teamCount').val()) || (!(data.parent().parent().child('config/teamCount').isNumber() && (data.parent().parent().child('config/teamCount').val() === 2 || data.parent().parent().child('config/teamCount').val() === 3 || data.parent().parent().child('config/teamCount').val() === 4 || data.parent().parent().child('config/teamCount').val() === 5)) && newData.child('team').val() < 4)) && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
           }
         },
-        "proposals": {
-          "$proposal": {
-            ".write": "auth != null && (data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('authorUid').val() === auth.uid && newData.child('q').isString() && newData.child('q').val().length <= 200)"
-          }
-        },
         "attempts": {
           "$uid": {
-            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('turnId').isNumber() && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() <= 3 && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && data.parent().parent().child('game/phase').val() === 'quiz' && data.parent().parent().child('members').child(auth.uid).child('team').val() === data.parent().parent().child('game/team').val()"
+            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && (!newData.exists() || (newData.child('turnId').isNumber() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && data.parent().parent().child('game/phase').val() === 'quiz' && newData.child('turnId').val() === data.parent().parent().child('game/quiz/turnId').val() && data.parent().parent().child('game/quiz/deadline').isNumber() && now <= data.parent().parent().child('game/quiz/deadline').val() + 1000 && now >= data.parent().parent().child('game/quiz/thinkUntil').val() && data.parent().parent().child('game/quiz/reps').child(newData.child('team').val() + '').val() === auth.uid && newData.child('team').isNumber() && newData.child('team').val() === data.parent().parent().child('members').child(auth.uid).child('team').val() && newData.child('choice').isNumber() && newData.child('choice').val() >= 0 && newData.child('choice').val() <= 3))",
+            ".validate": "newData.hasChildren(['turnId','team','choice'])",
+            "turnId": {
+              ".validate": "newData.isNumber()"
+            },
+            "team": {
+              ".validate": "newData.isNumber()"
+            },
+            "choice": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
+            },
+            "submittedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "buildRequests": {
+          "$key": {
+            ".write": "auth != null && ((!data.exists() && newData.child('authorUid').val() === auth.uid && data.parent().parent().child('hostUid').val() !== auth.uid && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('ownerTeam').isNumber() && newData.child('ownerTeam').val() === data.parent().parent().child('members').child(auth.uid).child('team').val() && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('territoryVersion').isNumber() && newData.child('author').isString() && newData.child('author').val().length <= 20 && newData.child('createdAt').isNumber() && ((newData.child('level').val() === 2 && newData.child('q').isString() && newData.child('q').val().length > 0 && newData.child('q').val().length <= 200 && newData.child('explain').isString() && newData.child('explain').val().length > 0 && newData.child('explain').val().length <= 300 && newData.child('answer').isNumber() && newData.child('answer').val() >= 0 && newData.child('answer').val() <= 3 && newData.child('options/0').isString() && newData.child('options/1').isString() && newData.child('options/2').isString() && newData.child('options/3').isString() && !newData.child('icon').exists() && !newData.child('meaning').exists()) || (newData.child('level').val() === 3 && newData.child('icon').isString() && (newData.child('icon').val() === 'tower' || newData.child('icon').val() === 'gate' || newData.child('icon').val() === 'pavilion') && newData.child('meaning').isString() && newData.child('meaning').val().length >= 10 && newData.child('meaning').val().length <= 120 && !newData.child('q').exists()))) || (data.exists() && !newData.exists() && data.child('authorUid').val() === auth.uid))",
+            "authorUid": {
+              ".validate": "newData.isString()"
+            },
+            "author": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "ownerTeam": {
+              ".validate": "newData.isNumber()"
+            },
+            "topic": {
+              ".validate": "newData.isNumber()"
+            },
+            "level": {
+              ".validate": "newData.isNumber()"
+            },
+            "territoryVersion": {
+              ".validate": "newData.isNumber()"
+            },
+            "createdAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "q": {
+              ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "options": {
+              "$i": {
+                ".validate": "($i === '0' || $i === '1' || $i === '2' || $i === '3') && newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+              }
+            },
+            "answer": {
+              ".validate": "newData.isNumber()"
+            },
+            "explain": {
+              ".validate": "newData.isString() && newData.val().length <= 300"
+            },
+            "icon": {
+              ".validate": "newData.isString() && newData.val().length <= 16"
+            },
+            "meaning": {
+              ".validate": "newData.isString() && newData.val().length <= 120"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "buildReviews": {
+          "$key": {
+            ".write": "auth != null && !data.exists() && newData.child('reviewerUid').val() === auth.uid && newData.child('ok').val() === true && data.parent().parent().child('buildRequests').child($key).exists() && data.parent().parent().child('buildRequests').child($key).child('authorUid').val() !== auth.uid && data.parent().parent().child('members').child(auth.uid).exists() && data.parent().parent().child('members').child(auth.uid).child('team').val() === data.parent().parent().child('buildRequests').child($key).child('ownerTeam').val()",
+            "reviewerUid": {
+              ".validate": "newData.isString()"
+            },
+            "reviewer": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "ok": {
+              ".validate": "newData.isBoolean()"
+            },
+            "at": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "buildAcks": {
+          "$uid": {
+            "$key": {
+              ".write": "auth != null && auth.uid === $uid && data.exists() && !newData.exists()"
+            }
           }
         },
         "landmarkProposals": {
@@ -36,16 +123,6 @@
           "$key": {
             ".write": "auth != null && ((!data.exists() && newData.isString() && newData.val() === auth.uid) || (data.val() === auth.uid && newData.val() === auth.uid))",
             ".validate": "newData.isString() && newData.val() === auth.uid"
-          }
-        },
-        "authoringRequests": {
-          "$uid": {
-            ".write": "auth != null && auth.uid === $uid && data.parent().parent().child('members').child(auth.uid).exists() && !data.exists() && newData.child('turnId').isNumber() && newData.child('team').isNumber() && newData.child('topic').isNumber() && newData.child('turnId').val() === data.parent().parent().child('game/turnId').val() && newData.child('team').val() === data.parent().parent().child('game/team').val() && newData.child('topic').val() === data.parent().parent().child('game/questionId').val() && data.parent().parent().child('game/phase').val() === 'author' && data.parent().parent().child('members').child(auth.uid).child('team').val() === newData.child('team').val()"
-          }
-        },
-        "completedQuestions": {
-          "$topic": {
-            ".write": "auth != null && data.parent().parent().child('members').child(auth.uid).exists() && newData.child('authorUid').val() === auth.uid && newData.child('topic').isNumber() && newData.child('topic').val() >= 0 && newData.child('topic').val() < 24 && newData.child('claimTeam').isNumber() && newData.child('claimTurnId').isNumber() && data.parent().parent().child('members').child(auth.uid).child('team').val() === newData.child('claimTeam').val() && data.parent().parent().child('pendingClaims').child($topic).child('team').val() === newData.child('claimTeam').val() && data.parent().parent().child('pendingClaims').child($topic).child('turnId').val() === newData.child('claimTurnId').val() && newData.child('q').isString() && newData.child('q').val().length > 0 && newData.child('q').val().length <= 200 && newData.child('options').hasChildren(['0','1','2','3']) && newData.child('answer').isNumber() && newData.child('answer').val() >= 0 && newData.child('answer').val() <= 3 && newData.child('explain').isString() && newData.child('explain').val().length > 0 && newData.child('explain').val().length <= 300"
           }
         }
       }

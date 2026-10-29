@@ -60,10 +60,10 @@ test('새 게임 상태: 5팀 배열·순서·담당 학생, 땅 24칸',()=>{
  assert.equal(initialGame(4).positions.length,4);
 });
 
-test('5팀 시작 순서: 차례대로 굴리고, 같은 숫자면 처음부터, 다르면 순서 확정',()=>{
+test('5팀 시작 순서: 차례대로 굴리고, 같은 숫자는 팀 번호 순서로 한 번에 확정(다시 굴리기 없음)',()=>{
  let g=initialGame(5,0);const c=ctx(five);
  for(const [i,pair] of [[0,[1,1]],[1,[2,2]],[2,[3,3]],[3,[4,4]]].map(([i,p])=>[i,p])){const patch=orderRollPatch(g,pair,c,1);assert.equal(patch.orderTurn,i+1);g={...g,...patch}}
- const tie=orderRollPatch(g,[1,1],c,2);assert.equal(tie.orderTurn,0);assert.deepEqual(tie.orderRolls,{});assert.equal(tie.phase,undefined);
+ const tie=orderRollPatch(g,[1,1],c,2);assert.equal(tie.phase,'roll');assert.deepEqual(tie.order,[3,2,1,0,4]);assert.equal(tie.orderTurn,5);assert.match(tie.message,/팀 번호 순서/);
  const done=orderRollPatch(g,[6,6],c,2);assert.equal(done.phase,'roll');assert.deepEqual(done.order,[4,3,2,1,0]);assert.equal(done.team,4);assert.equal(done.orderTurn,5);
 });
 
@@ -136,6 +136,8 @@ test('문제·카드 자료: 삼국/기존 방은 기본 문제, 다른 시대�
 test('app.js: 팀 수 4 고정값 대신 방 설정을 쓰고 순수 도우미를 연결해요',()=>{
  const app=read('../app.js');
  assert.doesNotMatch(app,/\[0,1,2,3\]|owner<4|team>3|%4\b|orderTurn:4/);
- for(const fn of ['handoffTransform(','completeClaimTransform(','orderRollPatch(','initialGame(','turnAlertTarget(','buildRoomConfig(','scheduleAutoHandoff()','lookupRoomTeams()'])assert.ok(app.includes(fn),fn);
+ // 예전 출제 완료(completeClaimTransform)는 더 이상 땅을 주지 않으므로 app.js에서 쓰지 않음(도우미는 호환용으로 남김)
+ assert.doesNotMatch(app,/completeClaimTransform\(/);
+ for(const fn of ['handoffTransform(','applyRoll(','settleQuiz(','applyBuildTransform(','orderRollPatch(','initialGame(','turnAlertTarget(','buildRoomConfig(','scheduleAutoHandoff()','lookupRoomTeams()'])assert.ok(app.includes(fn),fn);
  for(const id of ['roll','next','authoring','team','roomCode','scenario','teamCount','teamNameInputs','teamHint'])assert.match(read('../index.html')+app,new RegExp('id="'+id+'"|\\$\\(\''+id+'\'\\)'),id);
 });
