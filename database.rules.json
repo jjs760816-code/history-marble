@@ -8,7 +8,7 @@
         ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || data.child('hostUid').val() === auth.uid)",
         "members": {
           "$uid": {
-            ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && newData.child('team').val() >= 0 && newData.child('team').val() <= 3 && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
+            ".write": "auth != null && auth.uid === $uid && newData.child('team').isNumber() && (newData.child('team').val() === 0 || newData.child('team').val() === 1 || newData.child('team').val() === 2 || newData.child('team').val() === 3 || newData.child('team').val() === 4) && ((data.parent().parent().child('config/teamCount').isNumber() && (data.parent().parent().child('config/teamCount').val() === 2 || data.parent().parent().child('config/teamCount').val() === 3 || data.parent().parent().child('config/teamCount').val() === 4 || data.parent().parent().child('config/teamCount').val() === 5) && newData.child('team').val() < data.parent().parent().child('config/teamCount').val()) || (!(data.parent().parent().child('config/teamCount').isNumber() && (data.parent().parent().child('config/teamCount').val() === 2 || data.parent().parent().child('config/teamCount').val() === 3 || data.parent().parent().child('config/teamCount').val() === 4 || data.parent().parent().child('config/teamCount').val() === 5)) && newData.child('team').val() < 4)) && newData.child('nickname').isString() && newData.child('nickname').val().length <= 20"
           }
         },
         "proposals": {

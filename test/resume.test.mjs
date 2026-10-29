@@ -45,6 +45,16 @@ test('서버의 hostUid·members/{uid}로만 재입장 여부를 정해요',()=>
  assert.equal(checkRoom({hostUid:'t',members:{s1:{nickname:'x',team:'9'}}},'s1',false).reason,'bad-member');
 });
 
+test('5팀: 저장값 팀 4는 유효, 7은 무효이고 서버 방 설정으로 다시 판정해요',()=>{
+ const p=parseProfile(JSON.stringify(makeProfile({uid:'u1',room:'AB12CD',host:false,nickname:'a',team:4,now})),'u1',now);
+ assert.equal(p.team,4);
+ assert.equal(parseProfile(JSON.stringify(makeProfile({uid:'u1',room:'AB12CD',host:false,nickname:'a',team:7,now})),'u1',now),null);
+ const m={s1:{nickname:'x',team:4}};
+ assert.equal(checkRoom({hostUid:'t',members:m},'s1',false).reason,'bad-member');
+ assert.deepEqual(checkRoom({hostUid:'t',config:{scenario:'goryeo',teamCount:5},members:m},'s1',false),{ok:true,member:{nickname:'x',team:4}});
+ assert.equal(checkRoom({hostUid:'t',config:{scenario:'three',teamCount:3},members:{s1:{nickname:'x',team:3}}},'s1',false).reason,'bad-member');
+});
+
 test('초안은 같은 uid·같은 방에서만 되살려요',()=>{
  const raw=JSON.stringify(makeDraft({uid:'u1',room:'AB12CD',fields:{q:'문제',opts:'1\n2\n3\n4',explain:'해설',answer:'2',topic:'5',landmarkName:'',landmarkImage:''},now}));
  assert.equal(parseDraft(raw,'u1','AB12CD',now).q,'문제');
