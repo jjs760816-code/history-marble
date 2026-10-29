@@ -1,5 +1,6 @@
 // 같은 기기·브라우저에서 방에 다시 들어가기 위한 저장 도우미.
 // 저장값은 화면 편의용일 뿐 권한이 아닙니다. Firebase 서버에서 hostUid·members/{uid}를 확인한 뒤에만 사용합니다.
+import {MAX_TEAMS,roomConfig} from './game-config.mjs';
 export const PROFILE_KEY='historyMarble.room.v1';
 export const DRAFT_KEY='historyMarble.draft.v1';
 const VERSION=1,ROOM=/^[A-Z0-9]{6}$/,PROFILE_AGE=14*864e5,DRAFT_AGE=12*36e5;
@@ -27,7 +28,7 @@ export function parseProfile(raw,uid,now=Date.now()){
  const room=normalizeRoom(p.room);
  if(!room||room!==p.room||typeof p.host!=='boolean')return null;
  if(!Number.isFinite(p.savedAt)||p.savedAt>now+6e4||now-p.savedAt>PROFILE_AGE)return null;
- if(!p.host&&(typeof p.nickname!=='string'||p.nickname.length>20||!Number.isInteger(p.team)||p.team<0||p.team>3))return null;
+ if(!p.host&&(typeof p.nickname!=='string'||p.nickname.length>20||!Number.isInteger(p.team)||p.team<0||p.team>=MAX_TEAMS))return null;
  return {v:VERSION,uid,room,host:p.host,nickname:p.host?'':p.nickname,team:p.host?0:p.team,savedAt:p.savedAt};
 }
 // invited: 주소의 ?room= 값. 같은 방이면 이어서, 다른 방이면 고르게 함(저장값은 아직 지우지 않음)
@@ -45,8 +46,9 @@ export function checkRoom(d,uid,host){
  const m=d.members?.[uid];
  if(!m)return {ok:false,reason:'missing-member',message:'이전 참가 정보가 없어요. 별명과 나라를 선택해 다시 입장해 주세요.'};
  if(m.leaving===true)return {ok:false,reason:'leaving',message:'팀에서 나가는 중이었어요. 나라를 다시 선택해 입장해 주세요.'};
+ // 팀 범위는 그 방의 설정(없으면 기존 4팀)으로 판정
  const team=Number(m.team);
- if(!Number.isInteger(team)||team<0||team>3||typeof m.nickname!=='string')return {ok:false,reason:'bad-member',message:'참가 정보가 올바르지 않아요. 다시 입장해 주세요.'};
+ if(!Number.isInteger(team)||team<0||team>=roomConfig(d).teamCount||typeof m.nickname!=='string')return {ok:false,reason:'bad-member',message:'참가 정보가 올바르지 않아요. 다시 입장해 주세요.'};
  return {ok:true,member:{nickname:m.nickname,team}};
 }
 // 작성 중인 문제·꾸미기 초안: 같은 uid·같은 방에서만 되살림. 자동 제출은 하지 않음
