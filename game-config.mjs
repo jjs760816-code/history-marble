@@ -47,7 +47,7 @@ export function buildRoomConfig({scenario=DEFAULT_SCENARIO,teamCount=NEW_ROOM_TE
  return {ok:true,config:{version:2,scenario,teamCount:n,teamNames:list,quizSeconds:Number(quizSeconds),resultSeconds:Number(resultSeconds),createdAt:now}};
 }
 // 방에 저장된 설정 읽기. 팀 수가 올바르지 않으면 보안 규칙과 똑같이 기존 4팀으로 봄
-export function roomConfig(d){
+function baseRoomConfig(d){
  const c=d?.config;
  if(!c||typeof c!=='object'||Array.isArray(c)||!validCount(c.teamCount))return legacyConfig();
  const n=c.teamCount,scenario=Object.hasOwn(SCENARIOS,c.scenario)?c.scenario:DEFAULT_SCENARIO;
@@ -148,4 +148,20 @@ export function createTurnAlert(seenKey=''){
   dismiss(){const was=!!open;open='';return was},
   get open(){return open}
  };
+}
+
+// 진행 중 이름은 번호와 별개인 game.teamNames에 보관합니다. 기존 방·새 방 모두 같은 읽기 경로를 사용합니다.
+export function validateTeamNames(values,count){
+ if(!Array.isArray(values)||values.length!==count)return {ok:false,message:'참가팀 수에 맞게 모든 팀 이름을 입력해 주세요.'};
+ const names=values.map(cleanTeamName);if(names.some(x=>!x))return {ok:false,message:'팀 이름은 1~20자이며 < > & " \' ` 기호는 사용할 수 없어요.'};
+ if(new Set(names).size!==count)return {ok:false,message:'팀 이름이 서로 겹치지 않게 입력해 주세요.'};return {ok:true,names};
+}
+export function roomConfig(d){const cfg=baseRoomConfig(d),v=validateTeamNames(d?.game?.teamNames,cfg.teamCount);return v.ok?{...cfg,teamNames:v.names}:cfg;}
+export function renameTeamsTransform(d,actor,values,expectedNames){
+ if(!actor||actor!==d?.hostUid)throw Error('이 방의 관리자만 팀 이름을 변경할 수 있어요.');
+ if(!d.game)throw Error('게임을 불러온 뒤 다시 시도해 주세요.');
+ const cfg=roomConfig(d),v=validateTeamNames(values,cfg.teamCount);if(!v.ok)throw Error(v.message);
+ if(JSON.stringify(expectedNames)!==JSON.stringify(cfg.teamNames))throw Error('다른 화면에서 팀 이름이 바뀌었어요. 최신 이름을 불러와 다시 입력해 주세요.');
+ if(JSON.stringify(v.names)===JSON.stringify(cfg.teamNames))return undefined;
+ return {...d.game,teamNames:v.names,teamNameRevision:Number(d.game.teamNameRevision||0)+1};
 }
