@@ -1,5 +1,5 @@
-import {createTeamNameEditor} from './team-names.mjs?v=20261109';
-import {renameTeamsTransform,restartGameKeepingNames} from './game-config.mjs?v=20261109-team-names';
+import {createTeamNameEditor} from './team-names.mjs?v=20261109-2';
+import {renameTeamsTransform,restartGameKeepingNames} from './game-config.mjs?v=20261109-team-names2';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { getDatabase, ref, set, get, update, onValue, push, remove, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
@@ -7,7 +7,7 @@ import {firebaseConfig} from './firebase-config.js';
 import {DEFAULT_QUESTIONS} from './questions.js';
 import {SCENARIO_QUESTIONS} from './scenario-questions.js';
 import {PROFILE_KEY,DRAFT_KEY,safeStorage,normalizeRoom,makeProfile,parseProfile,resumePlan,checkRoom,makeDraft,parseDraft,draftIsEmpty} from './resume.mjs?v=20261029-teams';
-import {SCENARIOS,SCENARIO_KEYS,NEW_ROOM_TEAM_COUNT,DEFAULT_SCENARIO,MIN_TEAMS,MAX_TEAMS,teamLabel,presetNames,buildRoomConfig,roomConfig,legacyConfig,isTeamIndex,defaultOrder,initialGame,orderRollPatch,nextTurnState as nextTurnFor,handoffTransform,handoffKey,shouldAutoHandoff,questionBankFor,historyCardsFor,rosterOf,currentPlayer,firstPlayerOf,startOrder as orderFromRolls,turnAlertTarget,createTurnAlert} from './game-config.mjs?v=20261109-team-names';
+import {SCENARIOS,SCENARIO_KEYS,NEW_ROOM_TEAM_COUNT,DEFAULT_SCENARIO,MIN_TEAMS,MAX_TEAMS,teamLabel,presetNames,buildRoomConfig,roomConfig,legacyConfig,isTeamIndex,defaultOrder,initialGame,orderRollPatch,nextTurnState as nextTurnFor,handoffTransform,handoffKey,shouldAutoHandoff,questionBankFor,historyCardsFor,rosterOf,currentPlayer,firstPlayerOf,startOrder as orderFromRolls,turnAlertTarget,createTurnAlert} from './game-config.mjs?v=20261109-team-names2';
 // 교실 동시 참여 규칙(동시 퀴즈·연구·공사)과 화면 조각은 classroom.mjs의 순수 함수로
 import {quizSettings,applyRoll,quizReps,quizStage,settleQuiz,recoverLegacyQuiz,settleDueAt,nextDueAt,hostAttemptKey,canConfirm,questionFor,landLevel,stageArt,buildingOf,buildBonus,researchOf,teamRoles,makeBuildRequest,buildPrecheck,applyBuildTransform,busyRequests,BUILD_REASONS,BUILD_ICONS,BUILD_COST,HOST_BEAT_MS,hostStatus,ART_NOTE,quizHTML,resultHTML,statusHTML,buildPanelHTML,teacherQueueHTML,researchHTML} from './classroom.mjs?v=20261030-parallel-v1';
 const $=id=>document.getElementById(id);
