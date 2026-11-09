@@ -1,4 +1,4 @@
-import {roomConfig,validateTeamNames} from './game-config.mjs?v=20261109-team-names';
+import {roomConfig,validateTeamNames} from './game-config.mjs?v=20261109-team-names2';
 // 진행 신호·답 제출로 화면이 갱신돼도 입력 중인 이름은 덮어쓰지 않습니다.
 export function createTeamNameEditor(onSave){
  let root,inputs=[],latest=[],base=[],dirty=false,saving=false,roomKey='',status,save;

@@ -165,3 +165,6 @@ export function renameTeamsTransform(d,actor,values,expectedNames){
  if(JSON.stringify(v.names)===JSON.stringify(cfg.teamNames))return undefined;
  return {...d.game,teamNames:v.names,teamNameRevision:Number(d.game.teamNameRevision||0)+1};
 }
+
+// 같은 방에서 게임만 다시 시작해도 관리자가 정한 참가팀 이름은 유지합니다.
+export function restartGameKeepingNames(d,now=Date.now(),message='시작 순서를 정해 주세요.'){const cfg=roomConfig(d);return {...initialGame(cfg.teamCount,now,message),teamNames:[...cfg.teamNames],teamNameRevision:Number(d?.game?.teamNameRevision||0)};}
